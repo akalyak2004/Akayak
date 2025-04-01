@@ -1,1 +1,133 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trading Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        #app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button, select {
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>Trading Platform</h1>
+
+        <!-- Currency Conversion Section -->
+        <div>
+            <h2>Currency Conversion</h2>
+            <label for="currency">Select Currency:</label>
+            <select id="currency" onchange="convertCurrency()">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+            </select>
+            <p>Asset Value: <span id="asset-value">1000</span> <span id="currency-symbol">USD</span></p>
+        </div>
+
+        <!-- User Authentication Section -->
+        <div>
+            <h2>User Login</h2>
+            <input type="email" id="email" placeholder="Email" />
+            <input type="password" id="password" placeholder="Password" />
+            <button onclick="login()">Login</button>
+            <button onclick="signup()">Sign Up</button>
+            <p id="user-info"></p>
+        </div>
+
+        <!-- Backtesting Section -->
+        <div>
+            <h2>Backtesting</h2>
+            <button onclick="runBacktest()">Run Backtest</button>
+            <p id="backtest-results"></p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Firebase config and initialization
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+
+        // User Login and Signup
+        function login() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    document.getElementById("user-info").innerText = "Logged in as: " + userCredential.user.email;
+                })
+                .catch((error) => {
+                    console.error(error.message);
+                });
+        }
+
+        function signup() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    document.getElementById("user-info").innerText = "Account created for: " + userCredential.user.email;
+                })
+                .catch((error) => {
+                    console.error(error.message);
+                });
+        }
+
+        // Currency Conversion
+        function convertCurrency() {
+            const currency = document.getElementById("currency").value;
+            let value = 1000;
+            let symbol = "USD";
+
+            if (currency === "EUR") {
+                value = (1000 * 0.92).toFixed(2);
+                symbol = "EUR";
+            }
+
+            document.getElementById("asset-value").innerText = value;
+            document.getElementById("currency-symbol").innerText = symbol;
+        }
+
+        // Backtesting Simulation
+        function runBacktest() {
+            const results = simulateBacktest();
+            document.getElementById("backtest-results").innerText = `Strategy Profit: $${results.profit}`;
+        }
+
+        function simulateBacktest() {
+            const initialCapital = 10000;
+            const randomProfit = (Math.random() * 2000 - 1000).toFixed(2); // Random profit/loss
+            return { profit: parseFloat(randomProfit) };
+        }
+    </script>
+</body>
+</html>
